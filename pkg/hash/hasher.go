@@ -2,6 +2,7 @@ package hash
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/Miguel-Dorta/gkup-core/pkg/common"
 	"hash"
@@ -49,6 +50,6 @@ func (h *Hasher) HashFile(f *common.File) error {
 	if _, err := io.CopyBuffer(h.h, osFile, h.buf); err != nil {
 		return fmt.Errorf("error hashing file %s: %w", f.Path, err)
 	}
-	f.Hash = h.h.Sum(nil)
+	f.Hash = hex.EncodeToString(h.h.Sum(nil))
 	return nil
 }
