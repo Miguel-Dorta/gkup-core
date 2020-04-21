@@ -20,14 +20,14 @@ func read() {
 	stdin := bufio.NewScanner(os.Stdin)
 	for stdin.Scan() {
 		switch stdin.Text() {
-		case "PRINT":
-			output.Print()
 		case "PAUSE":
 			Pause <- true
 		case "RESUME":
 			Resume <- true
 		case "STOP":
 			Stop <- true
+		case "PRINT":
+			output.Print()
 		default:
 			output.PrintErrorf("invalid operation: %s", stdin.Text())
 		}
