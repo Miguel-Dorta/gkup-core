@@ -2,12 +2,11 @@ package input
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/Miguel-Dorta/gkup-core/pkg/output"
 	"os"
 )
 
 var (
-	Print  = make(chan bool)
 	Pause  = make(chan bool)
 	Resume = make(chan bool)
 	Stop   = make(chan bool)
@@ -22,7 +21,7 @@ func read() {
 	for stdin.Scan() {
 		switch stdin.Text() {
 		case "PRINT":
-			Print <- true
+			output.Print()
 		case "PAUSE":
 			Pause <- true
 		case "RESUME":
@@ -30,10 +29,11 @@ func read() {
 		case "STOP":
 			Stop <- true
 		default:
-			fmt.Fprintln(os.Stderr, "invalid operation: " + stdin.Text())
+			output.PrintErrorf("invalid operation: %s", stdin.Text())
 		}
 	}
 	if err := stdin.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "error reading stdin: " + err.Error())
+		output.PrintErrorf("error reading stdin: %s", err)
+		os.Exit(1)
 	}
 }

@@ -3,6 +3,7 @@ package output
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
 )
 
@@ -70,4 +71,12 @@ func Print() {
 func printNoLock() {
 	data, _ := json.Marshal(&status)
 	fmt.Println(string(data))
+}
+
+func PrintErrorf(format string, a ...interface{}) {
+	PrintError(fmt.Sprintf(format, a...))
+}
+
+func PrintError(err interface{}) {
+	fmt.Fprintln(os.Stderr, err)
 }
