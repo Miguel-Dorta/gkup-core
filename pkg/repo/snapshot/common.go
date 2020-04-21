@@ -4,4 +4,7 @@ type metadata struct {
 	Version string `json:"version"`
 }
 
-const SnapshotDirName = "snapshots"
+const (
+	SnapshotDirName = "snapshots"
+	Extension = ".gkup"
+)

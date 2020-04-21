@@ -5,10 +5,8 @@ import (
 	"github.com/Miguel-Dorta/gkup-core/pkg/common"
 	"github.com/Miguel-Dorta/gkup-core/pkg/fileUtils"
 	"github.com/Miguel-Dorta/gkup-core/pkg/repo/settings"
-	"github.com/Miguel-Dorta/gkup-core/pkg/repo/snapshot"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 var (
@@ -49,20 +47,6 @@ func AddFile(f *common.File) error {
 		return fmt.Errorf("error copying file from %s to %s: %w", f.Path, fRepoPath, err)
 	}
 	return nil
-}
-
-func NewSnapshot(snapshotName string, t time.Time) (*snapshot.Writer, error) {
-	snapPath := filepath.Join(path, snapshot.SnapshotDirName)
-	if snapshotName != "" {
-		snapPath = filepath.Join(snapPath, snapshotName)
-	}
-	snapPath = filepath.Join(snapPath, fmt.Sprintf("%d.gkup", t.Unix()))
-
-	w, err := snapshot.NewWriter(snapPath)
-	if err != nil {
-		return nil, fmt.Errorf("error creating snapshot %s: %w", snapPath, err)
-	}
-	return w, nil
 }
 
 func getFilePathInRepo(f *common.File) string {
