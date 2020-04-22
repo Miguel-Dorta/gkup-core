@@ -3,9 +3,10 @@ package common
 import "sync"
 
 type File struct {
-	Path string `json:"path"`
-	Hash string `json:"hash"`
-	Size int64  `json:"size"`
+	AbsPath string `json:"-"`
+	RelPath string `json:"path"`
+	Hash    string `json:"hash"`
+	Size    int64  `json:"size"`
 }
 
 type SafeFileList struct {

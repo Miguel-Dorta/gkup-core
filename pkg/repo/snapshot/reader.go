@@ -9,8 +9,9 @@ import (
 )
 
 type Reader struct {
-	d *json.Decoder
-	f *os.File
+	Meta Metadata
+	d    *json.Decoder
+	f    *os.File
 }
 
 func NewReader(path string) (*Reader, error) {
@@ -25,8 +26,7 @@ func NewReader(path string) (*Reader, error) {
 		f: f,
 	}
 
-	var md metadata
-	if err := r.d.Decode(&md); err != nil {
+	if err := r.d.Decode(&r.Meta); err != nil {
 		return nil, fmt.Errorf("error decoding metadata: %w", err)
 	}
 

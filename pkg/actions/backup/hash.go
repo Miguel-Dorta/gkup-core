@@ -29,7 +29,7 @@ func HashFiles(fs []*common.File, hashAlgorithm string) error {
 					break
 				}
 
-				output.NewPartialStep("Hash file " + f.Path)
+				output.NewPartialStep("Hash file " + f.AbsPath)
 				if err := h.HashFile(f); err != nil {
 					commonErr = err
 					return

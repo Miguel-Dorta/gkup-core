@@ -5,6 +5,7 @@ import (
 	"github.com/Miguel-Dorta/gkup-core/pkg/common"
 	"io/ioutil"
 	"os"
+	slashPath "path"
 	"path/filepath"
 )
 
@@ -23,15 +24,16 @@ func list(paths ...string) ([]*common.File, error) {
 		}
 
 		if pathStat.IsDir() {
-			pathList, err := listDir(path)
+			pathList, err := listDir(path, pathStat.Name())
 			if err != nil {
 				return nil, err
 			}
 			fileList = append(fileList, pathList...)
 		} else if pathStat.Mode().IsRegular() {
 			fileList = append(fileList, &common.File{
-				Path: path,
-				Size: pathStat.Size(),
+				AbsPath: path,
+				RelPath: pathStat.Name(),
+				Size:    pathStat.Size(),
 			})
 		} else {
 			return nil, fmt.Errorf("unsupported type in file %s", path)
@@ -41,29 +43,31 @@ func list(paths ...string) ([]*common.File, error) {
 	return fileList, nil
 }
 
-func listDir(path string) ([]*common.File, error) {
+func listDir(absPath, relPath string) ([]*common.File, error) {
 	fileList := make([]*common.File, 0, DefaultListSize)
 
-	fs, err := ioutil.ReadDir(path)
+	fs, err := ioutil.ReadDir(absPath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading dir %s: %w", path, err)
+		return nil, fmt.Errorf("error reading dir %s: %w", absPath, err)
 	}
 
 	for _, f := range fs {
-		fPath := filepath.Join(path, f.Name())
+		fAbsPath := filepath.Join(absPath, f.Name())
+		fRelPath := slashPath.Join(relPath, f.Name())
 		if f.IsDir() {
-			childList, err := listDir(fPath)
+			childList, err := listDir(fAbsPath, fRelPath)
 			if err != nil {
 				return nil, err
 			}
 			fileList = append(fileList, childList...)
 		} else if f.Mode().IsRegular() {
 			fileList = append(fileList, &common.File{
-				Path: fPath,
-				Size: f.Size(),
+				AbsPath: fAbsPath,
+				RelPath: fRelPath,
+				Size:    f.Size(),
 			})
 		} else {
-			return nil, fmt.Errorf("unsupported type in file %s", fPath)
+			return nil, fmt.Errorf("unsupported type in file %s", fAbsPath)
 		}
 	}
 

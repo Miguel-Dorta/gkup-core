@@ -15,7 +15,7 @@ type Writer struct {
 	f *os.File
 }
 
-func NewWriter(path string) (*Writer, error) {
+func NewWriter(path string, numberOfFiles uint64) (*Writer, error) {
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("error opening snapshot: %w", err)
@@ -28,7 +28,10 @@ func NewWriter(path string) (*Writer, error) {
 		f: f,
 	}
 
-	if err := w.e.Encode(&metadata{Version: internal.Version}); err != nil {
+	if err := w.e.Encode(Metadata{
+		Version:       internal.Version,
+		NumberOfFiles: numberOfFiles,
+	}); err != nil {
 		return nil, fmt.Errorf("error writing metadata: %w", err)
 	}
 	return w, nil

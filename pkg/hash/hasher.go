@@ -60,14 +60,14 @@ func NewHasher(hashAlgorithm string, bufSize int) *Hasher {
 }
 
 func (h *Hasher) HashFile(f *common.File) error {
-	osFile, err := os.Open(f.Path)
+	osFile, err := os.Open(f.AbsPath)
 	if err != nil {
-		return fmt.Errorf("error opening file %s: %w", f.Path, err)
+		return fmt.Errorf("error opening file %s: %w", f.AbsPath, err)
 	}
 
 	h.h.Reset()
 	if _, err := io.CopyBuffer(h.h, osFile, h.buf); err != nil {
-		return fmt.Errorf("error hashing file %s: %w", f.Path, err)
+		return fmt.Errorf("error hashing file %s: %w", f.AbsPath, err)
 	}
 	f.Hash = hex.EncodeToString(h.h.Sum(nil))
 	return nil
