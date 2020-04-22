@@ -27,7 +27,7 @@ func Init(repoPath string) error {
 
 func AddFile(f *common.File) error {
 	if f.Hash == "" {
-		return fmt.Errorf("file %s hasn't been hashed", f.Path)
+		return fmt.Errorf("file %s hasn't been hashed", f.AbsPath)
 	}
 	fRepoPath := getFilePathInRepo(f)
 
@@ -43,8 +43,21 @@ func AddFile(f *common.File) error {
 		return fmt.Errorf("error creating parent directories for file %s: %w", fRepoPath, err)
 	}
 
-	if err := fileUtils.CopyFile(f.Path, fRepoPath); err != nil {
-		return fmt.Errorf("error copying file from %s to %s: %w", f.Path, fRepoPath, err)
+	if err := fileUtils.CopyFile(f.AbsPath, fRepoPath); err != nil {
+		return fmt.Errorf("error copying file from %s to %s: %w", f.AbsPath, fRepoPath, err)
+	}
+	return nil
+}
+
+func RestoreFile(f *common.File, destination string) error {
+	destination = filepath.Join(destination, filepath.FromSlash(f.RelPath))
+
+	if err := os.MkdirAll(filepath.Dir(destination), 0755); err != nil {
+		return fmt.Errorf("error making parent directory for file %s: %w", destination, err)
+	}
+
+	if err := fileUtils.CopyFile(getFilePathInRepo(f), destination); err != nil {
+		return fmt.Errorf("error copying file from %s to %s: %w", getFilePathInRepo(f), destination, err)
 	}
 	return nil
 }

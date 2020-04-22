@@ -10,18 +10,22 @@ import (
 	"time"
 )
 
-func NewSnapshot(snapshotName string, t time.Time) (*snapshot.Writer, error) {
-	snapPath := filepath.Join(path, snapshot.SnapshotDirName)
-	if snapshotName != "" {
-		snapPath = filepath.Join(snapPath, snapshotName)
-	}
-	snapPath = filepath.Join(snapPath, strconv.FormatInt(t.Unix(), 10)+snapshot.Extension)
-
-	w, err := snapshot.NewWriter(snapPath)
+func NewSnapshot(snapshotName string, t time.Time, numberOfFiles uint64) (*snapshot.Writer, error) {
+	snapPath := getPath(snapshotName, t)
+	w, err := snapshot.NewWriter(snapPath, numberOfFiles)
 	if err != nil {
 		return nil, fmt.Errorf("error creating snapshot %s: %w", snapPath, err)
 	}
 	return w, nil
+}
+
+func OpenSnapshot(snapshotName string, t time.Time) (*snapshot.Reader, error) {
+	snapPath := getPath(snapshotName, t)
+	r, err := snapshot.NewReader(snapPath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading snapshot %s: %w", snapPath, err)
+	}
+	return r, nil
 }
 
 func ListSnapshots() (map[string][]int64, error) {
@@ -78,4 +82,12 @@ func getTime(filename string) *int64 {
 		return nil
 	}
 	return &i
+}
+
+func getPath(snapshotName string, t time.Time) string {
+	snapPath := filepath.Join(path, snapshot.SnapshotDirName)
+	if snapshotName != "" {
+		snapPath = filepath.Join(snapPath, snapshotName)
+	}
+	return filepath.Join(snapPath, fmt.Sprintf("%d%s", t.UTC().Unix(), snapshot.Extension))
 }
