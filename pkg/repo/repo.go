@@ -17,7 +17,7 @@ var (
 func Init(repoPath string) error {
 	path = repoPath
 
-	s, err := settings.Load(filepath.Join(path, settings.Filename))
+	s, err := settings.Load(filepath.Join(path))
 	if err != nil {
 		return fmt.Errorf("error loading settings: %w", err)
 	}

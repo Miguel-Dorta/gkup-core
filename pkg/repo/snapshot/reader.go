@@ -17,7 +17,7 @@ type Reader struct {
 func NewReader(path string) (*Reader, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("error opening snapshot: %w", path, err)
+		return nil, fmt.Errorf("error opening snapshot: %w", err)
 	}
 	defer f.Close()
 
@@ -38,11 +38,11 @@ func (r *Reader) More() bool {
 }
 
 func (r *Reader) Next() (*common.File, error) {
-	var f *common.File
-	if err := r.d.Decode(f); err != nil {
+	var f common.File
+	if err := r.d.Decode(&f); err != nil {
 		return nil, fmt.Errorf("error decoding file: %w", err)
 	}
-	return f, nil
+	return &f, nil
 }
 
 func (r *Reader) Close() error {
