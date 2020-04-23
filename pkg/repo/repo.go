@@ -1,10 +1,11 @@
 package repo
 
 import (
+	"errors"
 	"fmt"
-	"github.com/Miguel-Dorta/gkup-core/pkg/common"
-	"github.com/Miguel-Dorta/gkup-core/pkg/fileUtils"
+	"github.com/Miguel-Dorta/gkup-core/internal"
 	"github.com/Miguel-Dorta/gkup-core/pkg/repo/settings"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -25,43 +26,22 @@ func Init(repoPath string) error {
 	return nil
 }
 
-func AddFile(f *common.File) error {
-	if f.Hash == "" {
-		return fmt.Errorf("file %s hasn't been hashed", f.AbsPath)
-	}
-	fRepoPath := getFilePathInRepo(f)
+func Create(repoPath string, s *settings.Settings) error {
+	path = repoPath
+	Sett = s
+	Sett.Version = internal.Version
 
-	exists, err := fileUtils.FileExists(fRepoPath)
-	if err != nil {
-		return fmt.Errorf("error checking existence of file %s: %w", fRepoPath, err)
-	}
-	if exists {
-		return nil
+	if err := os.MkdirAll(path, 0755); err != nil {
+		return fmt.Errorf("error creating repository directory %s: %w", path, err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(fRepoPath), 0755); err != nil {
-		return fmt.Errorf("error creating parent directories for file %s: %w", fRepoPath, err)
+	if fs, err := ioutil.ReadDir(path); err != nil {
+		return fmt.Errorf("error reading repository directory %s: %w", path, err)
+	} else if len(fs) != 0 {
+		return errors.New("repository directory must be empty")
 	}
 
-	if err := fileUtils.CopyFile(f.AbsPath, fRepoPath); err != nil {
-		return fmt.Errorf("error copying file from %s to %s: %w", f.AbsPath, fRepoPath, err)
+	if err := settings.Save(path, Sett); err != nil {
+		return fmt.Errorf("error saving settings: %w", err)
 	}
-	return nil
-}
-
-func RestoreFile(f *common.File, destination string) error {
-	destination = filepath.Join(destination, filepath.FromSlash(f.RelPath))
-
-	if err := os.MkdirAll(filepath.Dir(destination), 0755); err != nil {
-		return fmt.Errorf("error making parent directory for file %s: %w", destination, err)
-	}
-
-	if err := fileUtils.CopyFile(getFilePathInRepo(f), destination); err != nil {
-		return fmt.Errorf("error copying file from %s to %s: %w", getFilePathInRepo(f), destination, err)
-	}
-	return nil
-}
-
-func getFilePathInRepo(f *common.File) string {
-	return filepath.Join(path, f.Hash[:2], f.Hash[2:4], fmt.Sprintf("%s-%d", f.Hash[4:], f.Size))
 }
