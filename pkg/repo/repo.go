@@ -44,4 +44,5 @@ func Create(repoPath string, s *settings.Settings) error {
 	if err := settings.Save(path, Sett); err != nil {
 		return fmt.Errorf("error saving settings: %w", err)
 	}
+	return nil
 }

@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 )
 
+const filesDirName = "files"
+
 func AddFile(f *common.File) error {
 	if f.Hash == "" {
 		return fmt.Errorf("file %s hasn't been hashed", f.AbsPath)
@@ -46,5 +48,5 @@ func RestoreFile(f *common.File, destination string) error {
 }
 
 func getFilePathInRepo(f *common.File) string {
-	return filepath.Join(path, f.Hash[:2], f.Hash[2:4], fmt.Sprintf("%s-%d", f.Hash[4:], f.Size))
+	return filepath.Join(path, filesDirName, f.Hash[:2], f.Hash[2:4], fmt.Sprintf("%s-%d", f.Hash[4:], f.Size))
 }

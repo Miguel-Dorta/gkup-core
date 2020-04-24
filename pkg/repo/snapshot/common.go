@@ -5,7 +5,4 @@ type Metadata struct {
 	NumberOfFiles uint64 `json:"files"`
 }
 
-const (
-	SnapshotDirName = "snapshots"
-	Extension       = ".gkup"
-)
+const Extension = ".gkup"

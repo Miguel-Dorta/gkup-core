@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const snapshotDirName = "snapshots"
+
 func NewSnapshot(snapshotName string, t time.Time, numberOfFiles uint64) (*snapshot.Writer, error) {
 	snapPath := getPath(snapshotName, t)
 	w, err := snapshot.NewWriter(snapPath, numberOfFiles)
@@ -29,7 +31,7 @@ func OpenSnapshot(snapshotName string, t time.Time) (*snapshot.Reader, error) {
 }
 
 func ListSnapshots() (map[string][]int64, error) {
-	snapDir := filepath.Join(path, snapshot.SnapshotDirName)
+	snapDir := filepath.Join(path, snapshotDirName)
 	fs, err := ioutil.ReadDir(snapDir)
 	if err != nil {
 		return nil, fmt.Errorf("error listing directory %s: %w", snapDir, err)
@@ -85,7 +87,7 @@ func getTime(filename string) *int64 {
 }
 
 func getPath(snapshotName string, t time.Time) string {
-	snapPath := filepath.Join(path, snapshot.SnapshotDirName)
+	snapPath := filepath.Join(path, snapshotDirName)
 	if snapshotName != "" {
 		snapPath = filepath.Join(snapPath, snapshotName)
 	}
