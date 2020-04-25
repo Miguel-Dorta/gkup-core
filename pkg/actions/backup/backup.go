@@ -29,7 +29,7 @@ func Run(snapshotName string, paths ...string) {
 	for _, f := range fList {
 		output.NewPartialStep("Add file " + f.AbsPath)
 		if err := repo.AddFile(f); err != nil {
-			output.PrintErrorf("error adding file %s to repository: %w", f.AbsPath, err)
+			output.PrintErrorf("error adding file %s to repository: %s", f.AbsPath, err)
 			os.Exit(1)
 		}
 	}
@@ -42,7 +42,7 @@ func Run(snapshotName string, paths ...string) {
 	}
 	for _, f := range fList {
 		if err := snap.Write(f); err != nil {
-			output.PrintErrorf("error adding file %s to snapshot: %w", f.AbsPath, err)
+			output.PrintErrorf("error adding file %s to snapshot: %s", f.AbsPath, err)
 			os.Exit(1)
 		}
 	}
