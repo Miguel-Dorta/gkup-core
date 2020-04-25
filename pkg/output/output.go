@@ -45,9 +45,7 @@ func NewGlobalStep(name string, totalPartialSteps uint64) {
 	status.Partial.Total = totalPartialSteps
 	status.Partial.Current = 0
 	status.Partial.Details = ""
-	if Verbose {
-		printNoLock()
-	}
+	printNoLock()
 
 	status.m.Unlock()
 }
