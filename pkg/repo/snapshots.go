@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Miguel-Dorta/gkup-core/pkg/repo/snapshot"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -14,6 +15,10 @@ const snapshotDirName = "snapshots"
 
 func NewSnapshot(snapshotName string, t time.Time, numberOfFiles uint64) (*snapshot.Writer, error) {
 	snapPath := getPath(snapshotName, t)
+
+	if err := os.MkdirAll(filepath.Dir(snapPath), 0755); err != nil {
+		return nil, fmt.Errorf("error creating parent directories for new snapshot %s: %w", snapPath, err)
+	}
 	w, err := snapshot.NewWriter(snapPath, numberOfFiles)
 	if err != nil {
 		return nil, fmt.Errorf("error creating snapshot %s: %w", snapPath, err)
