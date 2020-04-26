@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/Miguel-Dorta/gkup-core/internal"
 	"github.com/Miguel-Dorta/gkup-core/pkg/actions/backup"
 	"github.com/Miguel-Dorta/gkup-core/pkg/actions/create"
 	"github.com/Miguel-Dorta/gkup-core/pkg/actions/list"
@@ -19,7 +21,7 @@ var (
 
 func init() {
 	var verbose bool
-	flag.StringVar(&action, "action", "", "[ALL] Action to do: BACKUP, CREATE, LIST, RESTORE")
+	flag.StringVar(&action, "action", "", "[ALL] Action to do: BACKUP, CREATE, LIST, RESTORE, VERSION")
 	flag.StringVar(&repoPath, "repo", "", "[ALL] Repository path")
 	flag.BoolVar(&verbose, "v", false, "[ALL] Verbose")
 	flag.StringVar(&snapName, "snapshot-name", "", "[BACKUP,RESTORE] Snapshot name")
@@ -44,6 +46,10 @@ func main() {
 	case "RESTORE":
 		repoInit()
 		restore.Run(snapName, time.Unix(snapTime, 0), destination)
+	case "VERSION":
+		fmt.Println(internal.Version)
+	default:
+		output.PrintErrorf("invalid action: %s", action)
 	}
 }
 
