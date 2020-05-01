@@ -30,4 +30,7 @@ archives:
   - id: gkup-core-archive
     builds:
       - gkup-core-build
-    format: binary
+    format: gz
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    files:
+      - none*
