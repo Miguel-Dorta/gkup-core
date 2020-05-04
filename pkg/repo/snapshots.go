@@ -39,6 +39,9 @@ func ListSnapshots() (map[string][]int64, error) {
 	snapDir := filepath.Join(path, snapshotDirName)
 	fs, err := ioutil.ReadDir(snapDir)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return map[string][]int64{}, nil
+		}
 		return nil, fmt.Errorf("error listing directory %s: %w", snapDir, err)
 	}
 
