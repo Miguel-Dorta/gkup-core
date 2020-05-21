@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// Settings represents the settings of a repo
 type Settings struct {
 	Version       string `toml:"version"`
 	HashAlgorithm string `toml:"hash_algorithm"`
@@ -14,6 +15,7 @@ type Settings struct {
 
 const filename = "settings.toml"
 
+// Load will take the path of a repo and return a Settings object that contains the repo's settings
 func Load(path string) (*Settings, error) {
 	data, err := ioutil.ReadFile(filepath.Join(path, filename))
 	if err != nil {
@@ -28,6 +30,7 @@ func Load(path string) (*Settings, error) {
 	return &s, nil
 }
 
+// Save will take the path of a repo and a Settings object, and write it
 func Save(path string, s *Settings) error {
 	data, err := toml.Marshal(s)
 	if err != nil {

@@ -14,12 +14,14 @@ import (
 	"os"
 )
 
+// Hasher is a type for optimizing file hashing
 type Hasher struct {
 	h   hash.Hash
 	buf []byte
 }
 
 const (
+	// Valid hashes
 	MD5      = "md5"
 	SHA1     = "sha1"
 	SHA256   = "sha256"
@@ -30,6 +32,8 @@ const (
 	minimumBufferSize = 512
 )
 
+// NewHasher returns a new hasher with the hash algorithm and buffer size specified.
+// It panics if the hash algorithm is invalid.
 func NewHasher(hashAlgorithm string, bufSize int) *Hasher {
 	var h hash.Hash
 	switch hashAlgorithm {
@@ -59,7 +63,13 @@ func NewHasher(hashAlgorithm string, bufSize int) *Hasher {
 	}
 }
 
+// HashFile will take a file, hash it, and update its hash.
+// It requires that the AbsPath of the file provided is not empty.
 func (h *Hasher) HashFile(f *common.File) error {
+	if err := f.CheckAbsPath(); err != nil {
+		return err
+	}
+
 	osFile, err := os.Open(f.AbsPath)
 	if err != nil {
 		return fmt.Errorf("error opening file %s: %w", f.AbsPath, err)

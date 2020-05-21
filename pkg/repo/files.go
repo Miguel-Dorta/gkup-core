@@ -10,11 +10,16 @@ import (
 
 const filesDirName = "files"
 
+// AddFiles add the file provided to the repository.
 func AddFile(f *common.File) error {
-	if f.Hash == "" {
-		return fmt.Errorf("file %s hasn't been hashed", f.AbsPath)
+	if err := f.CheckAbsPath(); err != nil {
+		return err
 	}
-	fRepoPath := getFilePathInRepo(f)
+
+	fRepoPath, err := getFilePathInRepo(f)
+	if err != nil {
+		return err
+	}
 
 	exists, err := fileUtils.FileExists(fRepoPath)
 	if err != nil {
@@ -34,19 +39,37 @@ func AddFile(f *common.File) error {
 	return nil
 }
 
+// RestoreFile takes the file provided and restores it in the destination path provided.
 func RestoreFile(f *common.File, destination string) error {
+	if err := f.CheckRelPath(); err != nil {
+		return err
+	}
+
+	pathInRepo, err := getFilePathInRepo(f)
+	if err != nil {
+		return err
+	}
+
 	destination = filepath.Join(destination, filepath.FromSlash(f.RelPath))
 
 	if err := os.MkdirAll(filepath.Dir(destination), 0755); err != nil {
 		return fmt.Errorf("error making parent directory for file %s: %w", destination, err)
 	}
 
-	if err := fileUtils.CopyFile(getFilePathInRepo(f), destination); err != nil {
+	if err := fileUtils.CopyFile(pathInRepo, destination); err != nil {
 		return fmt.Errorf("error copying file from %s to %s: %w", getFilePathInRepo(f), destination, err)
 	}
 	return nil
 }
 
-func getFilePathInRepo(f *common.File) string {
-	return filepath.Join(path, filesDirName, f.Hash[:2], f.Hash[2:4], fmt.Sprintf("%s-%d", f.Hash[4:], f.Size))
+// getFilePathInRepo returns the real path that the provided object should have if stored in the repository.
+// It returns errors if hash or size are empty.
+func getFilePathInRepo(f *common.File) (string, error) {
+	if err := f.CheckHash(); err != nil {
+		return "", err
+	}
+	if err := f.CheckSize(); err != nil {
+		return "", err
+	}
+	return filepath.Join(path, filesDirName, f.Hash[:2], f.Hash[2:4], fmt.Sprintf("%s-%d", f.Hash[4:], f.Size)), nil
 }
