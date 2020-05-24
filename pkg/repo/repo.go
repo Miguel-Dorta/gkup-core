@@ -15,6 +15,8 @@ var (
 	path string
 )
 
+// Init initializes the package loading the settings of the repository provided.
+// This is always required except if you're operating in a non-existent repository (e.g. you're creating one)
 func Init(repoPath string) error {
 	path = repoPath
 
@@ -26,6 +28,7 @@ func Init(repoPath string) error {
 	return nil
 }
 
+// Create takes the settings provided and creates a repository in the path provided. It also initializes the package.
 func Create(repoPath string, s *settings.Settings) error {
 	path = repoPath
 	Sett = s

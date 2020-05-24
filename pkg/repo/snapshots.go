@@ -13,8 +13,9 @@ import (
 
 const snapshotDirName = "snapshots"
 
-func NewSnapshot(snapshotName string, t time.Time, numberOfFiles uint64) (*snapshot.Writer, error) {
-	snapPath := getPath(snapshotName, t)
+// NewSnapshot creates a new snapshot with the args given, and returns its writer.
+func NewSnapshot(snapGroup string, t time.Time, numberOfFiles uint64) (*snapshot.Writer, error) {
+	snapPath := getPath(snapGroup, t)
 
 	if err := os.MkdirAll(filepath.Dir(snapPath), 0755); err != nil {
 		return nil, fmt.Errorf("error creating parent directories for new snapshot %s: %w", snapPath, err)
@@ -26,8 +27,9 @@ func NewSnapshot(snapshotName string, t time.Time, numberOfFiles uint64) (*snaps
 	return w, nil
 }
 
-func OpenSnapshot(snapshotName string, t time.Time) (*snapshot.Reader, error) {
-	snapPath := getPath(snapshotName, t)
+// OpenSnapshot opens a snapshot with the args given, and returns its reader.
+func OpenSnapshot(snapGroup string, t time.Time) (*snapshot.Reader, error) {
+	snapPath := getPath(snapGroup, t)
 	r, err := snapshot.NewReader(snapPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading snapshot %s: %w", snapPath, err)
@@ -35,6 +37,8 @@ func OpenSnapshot(snapshotName string, t time.Time) (*snapshot.Reader, error) {
 	return r, nil
 }
 
+// ListSnapshots lists all the snapshots of a repository, returning a map where the key is the snapshot group,
+// and the value is a slice of those snapshots in unix-time UTC.
 func ListSnapshots() (map[string][]int64, error) {
 	snapDir := filepath.Join(path, snapshotDirName)
 	fs, err := ioutil.ReadDir(snapDir)
@@ -65,6 +69,7 @@ func ListSnapshots() (map[string][]int64, error) {
 	return m, nil
 }
 
+// listSnapChild returns a slice of the times of the snapshots contained in the directory provided. It is NOT recursive.
 func listSnapChild(path string) ([]int64, error) {
 	fs, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -83,6 +88,7 @@ func listSnapChild(path string) ([]int64, error) {
 	return list, nil
 }
 
+// getTime gets a valid filename of a snapshot and returns its time. It returns nil if the filename is invalid.
 func getTime(filename string) *int64 {
 	if !strings.HasSuffix(filename, snapshot.Extension) {
 		return nil
@@ -94,10 +100,11 @@ func getTime(filename string) *int64 {
 	return &i
 }
 
-func getPath(snapshotName string, t time.Time) string {
+// getPath gets a group name and a time.Time, and returns the path of the corresponding snapshot.
+func getPath(snapGroup string, t time.Time) string {
 	snapPath := filepath.Join(path, snapshotDirName)
-	if snapshotName != "" {
-		snapPath = filepath.Join(snapPath, snapshotName)
+	if snapGroup != "" {
+		snapPath = filepath.Join(snapPath, snapGroup)
 	}
 	return filepath.Join(snapPath, fmt.Sprintf("%d%s", t.UTC().Unix(), snapshot.Extension))
 }
