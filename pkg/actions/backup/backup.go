@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"github.com/Miguel-Dorta/gkup-core/pkg/input"
 	"github.com/Miguel-Dorta/gkup-core/pkg/output"
 	"github.com/Miguel-Dorta/gkup-core/pkg/repo"
 	"os"
@@ -27,6 +28,21 @@ func Run(snapshotName string, paths ...string) {
 
 	output.NewGlobalStep("Add files to repository", filesToProcess)
 	for _, f := range fList {
+		// Control channels
+		select {
+		case <-input.Pause:
+			select {
+			case <-input.Stop:
+				output.PrintError(output.ErrProcessStopped)
+				os.Exit(1)
+			case <-input.Resume:
+			}
+		case <-input.Stop:
+			output.PrintError(output.ErrProcessStopped)
+			os.Exit(1)
+		default:
+		}
+
 		output.NewPartialStep("Add file " + f.AbsPath)
 		if err := repo.AddFile(f); err != nil {
 			output.PrintErrorf("error adding file %s to repository: %s", f.AbsPath, err)

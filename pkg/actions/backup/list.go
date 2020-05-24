@@ -3,6 +3,8 @@ package backup
 import (
 	"fmt"
 	"github.com/Miguel-Dorta/gkup-core/pkg/common"
+	"github.com/Miguel-Dorta/gkup-core/pkg/input"
+	"github.com/Miguel-Dorta/gkup-core/pkg/output"
 	"io/ioutil"
 	"os"
 	slashPath "path"
@@ -11,9 +13,10 @@ import (
 
 const (
 	DefaultTotalListSize = 1000
-	DefaultListSize = 10
+	DefaultListSize      = 10
 )
 
+// list lists all the path provided
 func list(paths ...string) ([]*common.File, error) {
 	fileList := make([]*common.File, 0, DefaultTotalListSize)
 
@@ -43,6 +46,7 @@ func list(paths ...string) ([]*common.File, error) {
 	return fileList, nil
 }
 
+// listDir lists files recursively
 func listDir(absPath, relPath string) ([]*common.File, error) {
 	fileList := make([]*common.File, 0, DefaultListSize)
 
@@ -52,6 +56,20 @@ func listDir(absPath, relPath string) ([]*common.File, error) {
 	}
 
 	for _, f := range fs {
+		select {
+		case <-input.Pause:
+			select {
+			case <-input.Stop:
+				output.PrintError(output.ErrProcessStopped)
+				os.Exit(1)
+			case <-input.Resume:
+			}
+		case <-input.Stop:
+			output.PrintError(output.ErrProcessStopped)
+			os.Exit(1)
+		default:
+		}
+
 		fAbsPath := filepath.Join(absPath, f.Name())
 		fRelPath := slashPath.Join(relPath, f.Name())
 		if f.IsDir() {

@@ -2,6 +2,7 @@ package output
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -32,6 +33,8 @@ var (
 		Partial partialProgress `json:"partial"`
 		m sync.Mutex
 	}{}
+
+	ErrProcessStopped = errors.New("process stopped")
 )
 
 // Setup sets the global number of steps
