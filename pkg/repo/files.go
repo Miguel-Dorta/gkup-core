@@ -57,7 +57,7 @@ func RestoreFile(f *common.File, destination string) error {
 	}
 
 	if err := fileUtils.CopyFile(pathInRepo, destination); err != nil {
-		return fmt.Errorf("error copying file from %s to %s: %w", getFilePathInRepo(f), destination, err)
+		return fmt.Errorf("error copying file from %s to %s: %w", pathInRepo, destination, err)
 	}
 	return nil
 }
