@@ -74,6 +74,7 @@ func (h *Hasher) HashFile(f *common.File) error {
 	if err != nil {
 		return fmt.Errorf("error opening file %s: %w", f.AbsPath, err)
 	}
+	defer osFile.Close()
 
 	h.h.Reset()
 	if _, err := io.CopyBuffer(h.h, osFile, h.buf); err != nil {
