@@ -39,3 +39,60 @@
 //     - "response", response. Must be one of the valid responses.
 
 package io
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+)
+
+type JSON map[string]interface{}
+
+const (
+	IdGeneral = 0
+	IdErrCritical = 1
+	IdErr = 2
+	IdProgress = 10
+	IdPause = 11
+	IdResume = 12
+	IdCancel = 13
+	IdInteractiveErr = 20
+)
+
+var (
+	callback map[int]func(JSON) JSON
+	stdin    = json.NewDecoder(os.Stdin)
+	stdout   = json.NewEncoder(os.Stdout)
+)
+
+func Listen() {
+	for {
+		var j JSON
+		if err := stdin.Decode(&j); err != nil {
+			if err2 := stdout.Encode(JSON{
+				"id":    IdErr,
+				"error": fmt.Sprintf("error decoding input: %s", err),
+			}); err2 != nil {
+				if err2 == io.EOF {
+					return
+				}
+				panic(err2)
+			}
+		}
+
+		go func() {
+			response := callback[j["id"].(int)](j)
+			if response == nil {
+				return
+			}
+			if err := stdout.Encode(response); err != nil {
+				panic("error encoding response: " + err.Error())
+			}
+		}()
+	}
+}
+
+func AddHandler(id int, f func(JSON) JSON) {
+	callback[id] = f
+}
