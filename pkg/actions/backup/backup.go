@@ -62,4 +62,8 @@ func Run(snapshotName string, paths ...string) {
 			os.Exit(1)
 		}
 	}
+	if err := snap.Close(); err != nil {
+		output.PrintErrorf("error closing snapshot file: %s", err)
+		os.Exit(1)
+	}
 }
